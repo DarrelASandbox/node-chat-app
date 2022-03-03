@@ -1,7 +1,6 @@
 const socket = io();
 
-socket.on('welcomeMessage', (message) => console.log(message));
-socket.on('chatboxMessage', (message) => console.log(message));
+socket.on('toClientMessage', (message) => console.log(message));
 
 document.querySelector('#message-form').addEventListener('submit', (e) => {
   e.preventDefault();

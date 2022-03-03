@@ -16,8 +16,19 @@ const port = process.env.PORT || 3000;
 app.use('/', express.static(path.join(__dirname, '../public')));
 
 io.on('connection', (socket) => {
-  socket.emit('welcomeMessage', 'Welcome to the chat room.');
-  socket.on('toServerMessage', (message) => io.emit('chatboxMessage', message));
+  socket.emit('toClientMessage', 'Welcome to the chat room.');
+  socket.broadcast.emit(
+    'toClientMessage',
+    'A new user has joined the chat room.'
+  );
+
+  socket.on('toServerMessage', (message) =>
+    io.emit('toClientMessage', message)
+  );
+
+  socket.on('disconnect', () =>
+    io.emit('toClientMessage', 'A user has left the chat room.')
+  );
 });
 
 server.listen(port, () => console.log(`Chat app listening on port ${port}`));
