@@ -15,23 +15,9 @@ const port = process.env.PORT || 3000;
 
 app.use('/', express.static(path.join(__dirname, '../public')));
 
-let count = 0;
-
 io.on('connection', (socket) => {
-  socket.emit('countUpdated', count);
-
-  socket.on('increment', () => {
-    count++;
-    // socket.emit('countUpdated', count);    Single client
-    io.emit('countUpdated', count); // All clients
-  });
-
-  socket.on('reset', () => {
-    count = 0;
-    socket.emit('countUpdated', count);
-  });
+  socket.emit('welcomeMessage', 'Welcome to the chat room.');
+  socket.on('toServerMessage', (message) => io.emit('chatboxMessage', message));
 });
 
-server.listen(port, () => {
-  console.log(`Chat app listening on port ${port}`);
-});
+server.listen(port, () => console.log(`Chat app listening on port ${port}`));
