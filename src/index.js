@@ -15,8 +15,21 @@ const port = process.env.PORT || 3000;
 
 app.use('/', express.static(path.join(__dirname, '../public')));
 
-io.on('connection', () => {
-  console.log('New web socket connection.');
+let count = 0;
+
+io.on('connection', (socket) => {
+  socket.emit('countUpdated', count);
+
+  socket.on('increment', () => {
+    count++;
+    // socket.emit('countUpdated', count);    Single client
+    io.emit('countUpdated', count); // All clients
+  });
+
+  socket.on('reset', () => {
+    count = 0;
+    socket.emit('countUpdated', count);
+  });
 });
 
 server.listen(port, () => {
