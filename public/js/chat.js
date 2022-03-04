@@ -9,11 +9,18 @@ const $messages = document.querySelector('#messages');
 
 // Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML;
+const locationTemplate = document.querySelector('#location-template').innerHTML;
 
 socket.on('toClientMessage', (message) => {
-  console.log(message);
-  const html = Mustache.render(messageTemplate, {
-    message,
+  const html = Mustache.render(messageTemplate, { message });
+  $messages.insertAdjacentHTML('beforeend', html);
+});
+
+socket.on('locationMessage', (locationInfo) => {
+  const html = Mustache.render(locationTemplate, {
+    date: locationInfo.date,
+    latitude: locationInfo.latitude,
+    longitude: locationInfo.longitude,
   });
   $messages.insertAdjacentHTML('beforeend', html);
 });
@@ -40,14 +47,15 @@ $locationButton.addEventListener('click', () => {
     return alert('Geolocation is not supported by your browser.');
   navigator.geolocation.getCurrentPosition((pos) => {
     const date = new Date(pos.timestamp); // (epochTimestamp)
+    const locationInfo = {
+      date,
+      latitude: pos.coords.latitude,
+      longitude: pos.coords.longitude,
+    };
 
-    socket.emit(
-      'toServerMessage',
-      `${date}: https://www.google.com/maps/@${pos.coords.latitude},${pos.coords.longitude}`,
-      (serverAcknowledgement) => {
-        $locationButton.removeAttribute('disabled');
-        console.log(serverAcknowledgement);
-      }
-    );
+    socket.emit('locationMessage', locationInfo, (serverAcknowledgement) => {
+      $locationButton.removeAttribute('disabled');
+      console.log(serverAcknowledgement);
+    });
   });
 });

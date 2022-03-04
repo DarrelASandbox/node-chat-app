@@ -31,6 +31,11 @@ io.on('connection', (socket) => {
     callback('Server has received the message.');
   });
 
+  socket.on('locationMessage', (message, callback) => {
+    io.emit('locationMessage', message);
+    callback('Server has received the location.');
+  });
+
   socket.on('disconnect', () =>
     io.emit('toClientMessage', 'A user has left the chat room.')
   );

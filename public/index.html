@@ -20,6 +20,18 @@
         <p>{{message}}</p>
       </div>
     </script>
+    <script id="location-template" type="text/html">
+      <div>
+        <p>
+          <h4>{{date}}</h4>
+          <a
+            href="https://www.google.com/maps/@${{latitude}},{{longitude}}"
+            target="_blank"
+            >Google Map Location</a
+          >
+        </p>
+      </div>
+    </script>
 
     <script
       type="module"
