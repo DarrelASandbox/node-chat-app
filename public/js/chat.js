@@ -12,7 +12,10 @@ const messageTemplate = document.querySelector('#message-template').innerHTML;
 const locationTemplate = document.querySelector('#location-template').innerHTML;
 
 socket.on('toClientMessage', (message) => {
-  const html = Mustache.render(messageTemplate, { message });
+  const html = Mustache.render(messageTemplate, {
+    message: message.text,
+    createdAt: moment(message.createdAt).format('h:mm:ss a'),
+  });
   $messages.insertAdjacentHTML('beforeend', html);
 });
 
@@ -30,7 +33,7 @@ $messageForm.addEventListener('submit', (e) => {
   $messageFormButton.setAttribute('disabled', 'disabled');
 
   const message = $messageFormInput.value;
-  if (!message) return;
+  if (!message) return $messageFormButton.removeAttribute('disabled');
 
   socket.emit('toServerMessage', message, (serverAcknowledgement) => {
     $messageFormButton.removeAttribute('disabled');
@@ -46,9 +49,9 @@ $locationButton.addEventListener('click', () => {
   if (!navigator.geolocation)
     return alert('Geolocation is not supported by your browser.');
   navigator.geolocation.getCurrentPosition((pos) => {
-    const date = new Date(pos.timestamp); // (epochTimestamp)
+    const date = new Date(); // (epochTimestamp)
     const locationInfo = {
-      date,
+      date: moment(pos.timestamp).format('h:mm:ss a'),
       latitude: pos.coords.latitude,
       longitude: pos.coords.longitude,
     };

@@ -7,6 +7,7 @@ const path = require('path');
 const http = require('http');
 const socketio = require('socket.io');
 const Filter = require('bad-words');
+const { generateMessage } = require('./components/messages');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,17 +18,18 @@ const port = process.env.PORT || 3000;
 app.use('/', express.static(path.join(__dirname, '../public')));
 
 io.on('connection', (socket) => {
-  socket.emit('toClientMessage', 'Welcome to the chat room.');
+  socket.emit('toClientMessage', generateMessage('Welcome to the chat!'));
+
   socket.broadcast.emit(
     'toClientMessage',
-    'A new user has joined the chat room.'
+    generateMessage('A new user has joined the chat room.')
   );
 
   socket.on('toServerMessage', (message, callback) => {
     const filter = new Filter();
     if (filter.isProfane(message)) return callback('Profanity is not allowed!');
 
-    io.emit('toClientMessage', message);
+    io.emit('toClientMessage', generateMessage(message));
     callback('Server has received the message.');
   });
 
@@ -37,7 +39,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () =>
-    io.emit('toClientMessage', 'A user has left the chat room.')
+    io.emit(
+      'toClientMessage',
+      generateMessage('A user has left the chat room.')
+    )
   );
 });
 
