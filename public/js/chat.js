@@ -1,22 +1,30 @@
 const socket = io();
 
+const $messageForm = document.querySelector('#message-form');
+const $messageFormInput = $messageForm.querySelector('input');
+const $messageFormButton = $messageForm.querySelector('button');
+const $locationButton = document.querySelector('#send-location');
+
 socket.on('toClientMessage', (message) => console.log(message));
 
-document.querySelector('#message-form').addEventListener('submit', (e) => {
+$messageForm.addEventListener('submit', (e) => {
   e.preventDefault();
+  $messageFormButton.setAttribute('disabled', 'disabled');
 
-  //   const message = document.querySelector('input').value;
-  const message = e.target.elements.message.value;
+  const message = $messageFormInput.value;
   if (!message) return;
 
-  socket.emit('toServerMessage', message, (serverAcknowledgement) =>
-    console.log(serverAcknowledgement)
-  );
-
-  e.target.elements.message.value = '';
+  socket.emit('toServerMessage', message, (serverAcknowledgement) => {
+    $messageFormButton.removeAttribute('disabled');
+    $messageFormInput.value = '';
+    $messageFormInput.focus();
+    console.log(serverAcknowledgement);
+  });
 });
 
-document.querySelector('#send-location').addEventListener('click', () => {
+$locationButton.addEventListener('click', () => {
+  $locationButton.setAttribute('disabled', 'disabled');
+
   if (!navigator.geolocation)
     return alert('Geolocation is not supported by your browser.');
   navigator.geolocation.getCurrentPosition((pos) => {
@@ -25,7 +33,10 @@ document.querySelector('#send-location').addEventListener('click', () => {
     socket.emit(
       'toServerMessage',
       `${date}: https://www.google.com/maps/@${pos.coords.latitude},${pos.coords.longitude}`,
-      (serverAcknowledgement) => console.log(serverAcknowledgement)
+      (serverAcknowledgement) => {
+        $locationButton.removeAttribute('disabled');
+        console.log(serverAcknowledgement);
+      }
     );
   });
 });
