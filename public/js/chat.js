@@ -8,7 +8,11 @@ document.querySelector('#message-form').addEventListener('submit', (e) => {
   //   const message = document.querySelector('input').value;
   const message = e.target.elements.message.value;
   if (!message) return;
-  socket.emit('toServerMessage', message);
+
+  socket.emit('toServerMessage', message, (serverAcknowledgement) =>
+    console.log(serverAcknowledgement)
+  );
+
   e.target.elements.message.value = '';
 });
 
@@ -20,7 +24,8 @@ document.querySelector('#send-location').addEventListener('click', () => {
 
     socket.emit(
       'toServerMessage',
-      `${date}: https://www.google.com/maps/@${pos.coords.latitude},${pos.coords.longitude}`
+      `${date}: https://www.google.com/maps/@${pos.coords.latitude},${pos.coords.longitude}`,
+      (serverAcknowledgement) => console.log(serverAcknowledgement)
     );
   });
 });
