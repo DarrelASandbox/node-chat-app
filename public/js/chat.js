@@ -56,7 +56,7 @@ $locationButton.addEventListener('click', () => {
     return alert('Geolocation is not supported by your browser.');
   navigator.geolocation.getCurrentPosition((pos) => {
     const locationInfo = {
-      date: moment(pos.timestamp).format('h:mm:ss a'), // (epochTimestamp)
+      date: moment(pos.timestamp).format('do MMM YY (ddd) - h:mm:ss a'), // (epochTimestamp)
       latitude: pos.coords.latitude,
       longitude: pos.coords.longitude,
     };
