@@ -8,6 +8,12 @@ const http = require('http');
 const socketio = require('socket.io');
 const Filter = require('bad-words');
 const { generateMessage } = require('./components/messages');
+const {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom,
+} = require('./components/users');
 
 const app = express();
 const server = http.createServer(app);
@@ -18,15 +24,20 @@ const port = process.env.PORT || 3000;
 app.use('/', express.static(path.join(__dirname, '../public')));
 
 io.on('connection', (socket) => {
-  socket.on('join', ({ username, room }) => {
-    socket.join(room);
+  socket.on('join', ({ username, room }, callback) => {
+    const { error, user } = addUser({ id: socket.id, username, room });
+    if (error) return callback(error);
+
+    socket.join(user.room);
     socket.emit('toClientMessage', generateMessage('Welcome to the chat!'));
     socket.broadcast
-      .to(room)
+      .to(user.room)
       .emit(
         'toClientMessage',
-        generateMessage(`${username} has joined the chat room.`)
+        generateMessage(`${user.username} has joined the chat room.`)
       );
+
+    callback();
   });
 
   socket.on('toServerMessage', (message, callback) => {
@@ -46,12 +57,16 @@ io.on('connection', (socket) => {
     callback('Server has received the location.');
   });
 
-  socket.on('disconnect', () =>
-    io.emit(
-      'toClientMessage',
-      generateMessage('A user has left the chat room.')
-    )
-  );
+  socket.on('disconnect', () => {
+    const user = removeUser(socket.id);
+    if (user)
+      return io
+        .to(user.room)
+        .emit(
+          'toClientMessage',
+          generateMessage(`${user.username} has left the chat room.`)
+        );
+  });
 });
 
 server.listen(port, () => console.log(`Chat app listening on port ${port}`));

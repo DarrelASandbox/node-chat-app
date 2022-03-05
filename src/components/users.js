@@ -12,7 +12,7 @@ const addUser = ({ id, username, room }) => {
 
   const user = { id, username, room };
   users.push(user);
-  return { users };
+  return { user };
 };
 
 const removeUser = (id) => {
