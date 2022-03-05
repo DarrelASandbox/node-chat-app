@@ -37,6 +37,11 @@ io.on('connection', (socket) => {
         generateMessage(`${user.displayname} has joined the chat room.`)
       );
 
+    io.to(user.room).emit('roomData', {
+      room: user.room,
+      users: getUsersInRoom(user.room),
+    });
+
     callback();
   });
 
@@ -65,13 +70,17 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     const user = removeUser(socket.id);
-    if (user)
-      return io
-        .to(user.room)
-        .emit(
-          'toClientMessage',
-          generateMessage(`${user.displayname} has left the chat room.`)
-        );
+    if (user) {
+      io.to(user.room).emit(
+        'toClientMessage',
+        generateMessage(`${user.displayname} has left the chat room.`)
+      );
+
+      io.to(user.room).emit('roomData', {
+        room: user.room,
+        users: getUsersInRoom(user.room),
+      });
+    }
   });
 });
 
