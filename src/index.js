@@ -18,12 +18,16 @@ const port = process.env.PORT || 3000;
 app.use('/', express.static(path.join(__dirname, '../public')));
 
 io.on('connection', (socket) => {
-  socket.emit('toClientMessage', generateMessage('Welcome to the chat!'));
-
-  socket.broadcast.emit(
-    'toClientMessage',
-    generateMessage('A new user has joined the chat room.')
-  );
+  socket.on('join', ({ username, room }) => {
+    socket.join(room);
+    socket.emit('toClientMessage', generateMessage('Welcome to the chat!'));
+    socket.broadcast
+      .to(room)
+      .emit(
+        'toClientMessage',
+        generateMessage(`${username} has joined the chat room.`)
+      );
+  });
 
   socket.on('toServerMessage', (message, callback) => {
     const filter = new Filter();
@@ -33,7 +37,7 @@ io.on('connection', (socket) => {
         generateMessage('Profanity is not allowed!')
       );
 
-    io.emit('toClientMessage', generateMessage(message));
+    io.to('1234').emit('toClientMessage', generateMessage(message));
     callback('Server has received the message.');
   });
 
