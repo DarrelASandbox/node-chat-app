@@ -24,6 +24,7 @@ const resetInput = () => {
 
 socket.on('toClientMessage', (message) => {
   const html = Mustache.render(messageTemplate, {
+    username: message.username,
     message: message.text,
     createdAt: moment(message.createdAt).format('h:mm:ss a'),
   });
@@ -34,6 +35,7 @@ socket.on('toClientMessage', (message) => {
 
 socket.on('locationMessage', (locationInfo) => {
   const html = Mustache.render(locationTemplate, {
+    username: locationInfo.username,
     date: locationInfo.date,
     latitude: locationInfo.latitude,
     longitude: locationInfo.longitude,
@@ -60,13 +62,13 @@ $locationButton.addEventListener('click', () => {
   if (!navigator.geolocation)
     return alert('Geolocation is not supported by your browser.');
   navigator.geolocation.getCurrentPosition((pos) => {
-    const locationInfo = {
+    const googleMapInfo = {
       date: moment(pos.timestamp).format('do MMM YY (ddd) - h:mm:ss a'), // (epochTimestamp)
       latitude: pos.coords.latitude,
       longitude: pos.coords.longitude,
     };
 
-    socket.emit('locationMessage', locationInfo, (serverAcknowledgement) => {
+    socket.emit('locationMessage', googleMapInfo, (serverAcknowledgement) => {
       $locationButton.removeAttribute('disabled');
       console.log(serverAcknowledgement);
     });

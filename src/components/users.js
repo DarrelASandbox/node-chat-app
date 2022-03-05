@@ -1,6 +1,7 @@
 const users = [];
 
 const addUser = ({ id, username, room }) => {
+  displayname = username;
   username = username.trim().toLowerCase();
   room = room.trim().toLowerCase();
   if (!username || !room) return { error: 'Username and room are required.' };
@@ -9,8 +10,7 @@ const addUser = ({ id, username, room }) => {
     (user) => user.username === username && user.room === room
   );
   if (existingUser) return { error: 'Username is taken in this room.' };
-
-  const user = { id, username, room };
+  const user = { id, username, displayname, room };
   users.push(user);
   return { user };
 };

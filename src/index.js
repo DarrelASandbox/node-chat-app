@@ -7,7 +7,7 @@ const path = require('path');
 const http = require('http');
 const socketio = require('socket.io');
 const Filter = require('bad-words');
-const { generateMessage } = require('./components/messages');
+const { generateMessage, generateLocation } = require('./components/messages');
 const {
   addUser,
   removeUser,
@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
       .to(user.room)
       .emit(
         'toClientMessage',
-        generateMessage(`${user.username} has joined the chat room.`)
+        generateMessage(`${user.displayname} has joined the chat room.`)
       );
 
     callback();
@@ -48,12 +48,18 @@ io.on('connection', (socket) => {
         generateMessage('Profanity is not allowed!')
       );
 
-    io.to('1234').emit('toClientMessage', generateMessage(message));
+    io.to(getUser(socket.id).room).emit(
+      'toClientMessage',
+      generateMessage(getUser(socket.id).displayname, message)
+    );
     callback('Server has received the message.');
   });
 
-  socket.on('locationMessage', (message, callback) => {
-    io.emit('locationMessage', message);
+  socket.on('locationMessage', (googleMapInfo, callback) => {
+    io.to(getUser(socket.id).room).emit(
+      'locationMessage',
+      generateLocation(getUser(socket.id).displayname, googleMapInfo)
+    );
     callback('Server has received the location.');
   });
 
@@ -64,7 +70,7 @@ io.on('connection', (socket) => {
         .to(user.room)
         .emit(
           'toClientMessage',
-          generateMessage(`${user.username} has left the chat room.`)
+          generateMessage(`${user.displayname} has left the chat room.`)
         );
   });
 });
