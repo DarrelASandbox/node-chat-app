@@ -21,23 +21,7 @@ const removeUser = (id) => {
   if (index !== -1) return users.splice(index, 1)[0];
 };
 
-// getUser
-const getUser = ({ id, username, room }) => {};
+const getUser = (id) => users.find((user) => user.id === id);
+const getUsersInRoom = (room) => users.filter((user) => user.room === room);
 
-// getUsersInRoom
-const getUsersInRoom = ({ id, username, room }) => {};
-
-// Testing Code
-addUser({ id: 1, username: 'MongKong   ', room: '12345678' });
-addUser({ id: 12, username: '    MongChick', room: '12345678' });
-addUser({ id: 123, username: 'MongKong   ', room: '5678' });
-const res = addUser({
-  id: 1234,
-  username: '   ',
-  room: ' 3 ',
-});
-
-removeUser(12);
-
-console.log(users);
-console.log(res);
+module.exports = { addUser, removeUser, getUser, getUsersInRoom };
